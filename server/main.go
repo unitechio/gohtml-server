@@ -8,8 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-	"runtime"
 	"time"
 
 	"github.com/chromedp/cdproto/page"
@@ -53,11 +51,13 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	http.HandleFunc("/health", healthHandler)
-	http.HandleFunc("/v1/pdf", pdfHandler)
 
-	log.Println("UniHTML Server starting on :8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	http.HandleFunc("/health", corsMiddleware(healthHandler))
+	http.HandleFunc("/v1/pdf", corsMiddleware(pdfHandler))
+
+	addr := ":" + port
+	log.Printf("UniHTML Server starting on %s", addr)
+	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -91,37 +91,19 @@ func pdfHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Successfully generated PDF (%d bytes)", len(pdfData))
 }
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-func getChromePath() string {
-	exePath, err := os.Executable()
-	if err != nil {
-		log.Printf("Cannot get executable path: %v", err)
-		return ""
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next(w, r)
 	}
-	exeDir := filepath.Dir(exePath)
-
-	var chromePath string
-	switch runtime.GOOS {
-	case "windows":
-		cwd, _ := os.Getwd()
-		chromePath = filepath.Join(cwd, "bin", "chrome.exe")
-	case "darwin":
-		chromePath = filepath.Join(exeDir, "bin", "chrome-mac", "Chromium.app", "Contents", "MacOS", "Chromium")
-	case "linux":
-		chromePath = filepath.Join(exeDir, "bin", "chrome")
-	default:
-		log.Printf("Unsupported OS: %s", runtime.GOOS)
-		return ""
-	}
-
-	// Kiểm tra file có tồn tại không
-	if _, err := os.Stat(chromePath); os.IsNotExist(err) {
-		log.Printf("Chrome binary not found at: %s", chromePath)
-		return ""
-	}
-
-	log.Printf("Using Chrome binary at: %s", chromePath)
-	return chromePath
 }
 
 func convertToPDF(req *generatePDFRequestV1) ([]byte, error) {
