@@ -49,6 +49,10 @@ type generatePDFRequestV1 struct {
 }
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/v1/pdf", pdfHandler)
 
