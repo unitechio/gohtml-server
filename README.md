@@ -1,49 +1,64 @@
-```markdown
 # GoHTML Server
 
-Self-hosted HTML to PDF conversion server compatible with the gohtml client library. This server provides a drop-in replacement for UniDoc's commercial UniHTML server.
+A self-hosted **HTML → PDF conversion server**, fully compatible with the [gohtml client library].  
+This project serves as a **drop-in replacement** for UniDoc’s commercial UniHTML server.
 
-## Features
+---
 
-- ✅ Convert HTML files to PDF
-- ✅ Convert HTML directories (with CSS, JS, images) to PDF
-- ✅ Convert web URLs to PDF
-- ✅ Customizable page size (A4, Letter, custom dimensions)
-- ✅ Configurable margins and orientation
-- ✅ Wait for dynamic content (JavaScript rendering)
-- ✅ Wait for specific selectors (ready/visible)
-- ✅ Chrome/Chromium rendering engine (pixel-perfect output)
-- ✅ Docker support
+## ✨ Features
+- Convert **HTML files** to PDF  
+- Convert **HTML directories** (with CSS, JS, images) to PDF  
+- Convert **web URLs** to PDF  
+- Customizable **page size** (A4, Letter, custom dimensions)  
+- Configurable **margins** and **orientation**  
+- Support for **dynamic content rendering** (JavaScript)  
+- Wait for **specific selectors** (ready/visible)  
+- **Pixel-perfect output** via Chrome/Chromium rendering engine  
+- **Docker support** for easy deployment  
 
-## Architecture
+---
 
-This project consists of two components:
+## 🏗 Architecture
+This project includes two main components:
 
-1. **Server** (`server/main.go`) - HTTP server that converts HTML to PDF using chromedp
-2. **Client** - gohtml library that communicates with the server
+1. **Server** (`server/main.go`) – HTTP server that converts HTML to PDF using [chromedp].  
+2. **Client** – the [gohtml] library that communicates with the server.  
 
-## Prerequisites
+---
 
-### Option 1: Docker (Recommended)
-- Docker installed
+## 📦 Prerequisites
 
-### Option 2: Local Development
-- Go 1.21+
-- Chrome/Chromium (chromedp will auto-download if not found)
+### Option 1: Docker (recommended)
+- Docker installed on your system  
 
-## Quick Start with Docker
+### Option 2: Local development
+- Go **1.21+**  
+- Chrome/Chromium (will be auto-downloaded by `chromedp` if missing)  
 
-### Build and Run
+---
+
+## 🚀 Quick Start with Docker
+
+### Build image
+```bash
+docker build -t gohtml-server:latest .
+```
+
+### Run server
 
 ```bash
-# Build Docker image
-docker build -t gohtml-server:latest .
-
-# Run server
 docker run -p 8080:8080 gohtml-server:latest
+```
 
-# Or run in background
+### Run in background
+
+```bash
 docker run -d -p 8080:8080 --name gohtml-server gohtml-server:latest
+```
+
+```bash
+[gohtml]: https://github.com/unitechio/gohtml
+[chromedp]: https://github.com/chromedp/chromedp
 ```
 
 ### Docker Compose
